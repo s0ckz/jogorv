@@ -1,0 +1,1 @@
+java -Djava.library.path="lib\natives" -cp "lib\jME_2.0.jar;bin;lib\lwjgl.jar;lib\jinput.jar;lib\gluegen-rt.jar;lib\lwjgl_util.jar" jogo1.Demo1
