@@ -1,0 +1,1 @@
+java -cp ..\lib\lwjgl.jar;..\lib\jME_2.0.jar com.jmex.model.converters.ObjToJme %*
