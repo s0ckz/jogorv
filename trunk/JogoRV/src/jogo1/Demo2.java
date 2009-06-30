@@ -77,8 +77,8 @@ public class Demo2 extends SimpleGame {
         
         configurarPersonagem();
         configurarTerreno();
-//        configurarPlantas();
-//        configurarArvores();
+        configurarPlantas();
+        configurarArvores();
         configurarMonstros();
         configurarCameraPerseguidora();
         configurarEntrada();
@@ -225,10 +225,6 @@ public class Demo2 extends SimpleGame {
 				monstro.getLocalRotation().fromAngleAxis(-FastMath.HALF_PI, new Vector3f(1, 0, 0));
 				monstro.getLocalRotation().multLocal(rotQuat1.fromAngleAxis(-angle, Vector3f.UNIT_Z));
 	        	monstro.getLocalTranslation().y = terreno.getHeight(monstro.getLocalTranslation()) + 20;
-				
-//		        monstro.getLocalRotation().getRotationColumn(2, rot);
-//		        rot.normalizeLocal();
-//		        loc.addLocal(rot.multLocal((1000f * timer.getTime())));
 	        }
 			timeInSeconds = timer.getTimeInSeconds();
 		}
