@@ -31,6 +31,7 @@ import com.jme.util.resource.SimpleResourceLocator;
 import com.jmex.model.converters.FormatConverter;
 import com.jmex.model.converters.MaxToJme;
 import com.jmex.model.converters.Md3ToJme;
+import com.jmex.model.converters.ObjToJme;
 import com.model.md5.importer.MD5Importer;
 
 public class ImportadorModelos {
@@ -38,6 +39,8 @@ public class ImportadorModelos {
 	private FormatConverter maxToJme = new MaxToJme();
 	
 	private FormatConverter md3ToJme = new Md3ToJme();
+	
+	private FormatConverter objToJme = new ObjToJme();
 	
 	private MD5Importer importer = MD5Importer.getInstance();
 	
@@ -56,6 +59,10 @@ public class ImportadorModelos {
 
 	public Node carregarModeloMax(String enderecoArquivo) throws IOException {
 		return carregarModeloMax(enderecoArquivo, new File(enderecoArquivo).getParent());
+	}
+
+	public Node carregarModeloObj(String enderecoArquivo) throws FileNotFoundException, MalformedURLException, IOException {
+		return carregarModeloObj(enderecoArquivo, new File(enderecoArquivo).getParent());
 	}
 
 	public Node carregarModeloMd5(String diretorio, String modelo) throws IOException {
@@ -87,7 +94,7 @@ public class ImportadorModelos {
 	    ResourceLocatorTool.addResourceLocator(ResourceLocatorTool.TYPE_TEXTURE, locator);
 	    ResourceLocatorTool.addResourceLocator(ResourceLocatorTool.TYPE_MODEL, locator);
 	
-		byte[] bytes = getByteArrayMax(enderecoArquivo, enderecoArquivo, md3ToJme);
+		byte[] bytes = getByteArray(enderecoArquivo, enderecoArquivo, md3ToJme);
 		
 		ByteArrayInputStream in = new ByteArrayInputStream(bytes);
 		
@@ -136,12 +143,29 @@ public class ImportadorModelos {
 		return mapaTexturas;
 	}
 
+	private Node carregarModeloObj(String enderecoArquivo, String enderecoTexturas) throws FileNotFoundException, MalformedURLException, IOException {
+		objToJme.setProperty("mtllib", new File(enderecoTexturas).toURI().toURL());
+	 	objToJme.setProperty("texdir", new File(enderecoTexturas).toURI().toURL());
+		byte[] bytes = getByteArray(enderecoArquivo, enderecoTexturas, objToJme);
+		
+		ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+		
+		Node node = new Node();
+		Spatial spatial = (Spatial)binaryImporter.load(in);
+		spatial.setModelBound(new BoundingBox());
+		spatial.updateModelBound();
+		
+		node.attachChild(spatial);
+		
+		return node;
+	}
+
 	private Node carregarModeloMax(String enderecoArquivo, String enderecoTexturas) throws FileNotFoundException, MalformedURLException, IOException {
         SimpleResourceLocator locator = new SimpleResourceLocator(new File(enderecoArquivo).getParentFile().toURI());
         ResourceLocatorTool.addResourceLocator(ResourceLocatorTool.TYPE_TEXTURE, locator);
         ResourceLocatorTool.addResourceLocator(ResourceLocatorTool.TYPE_MODEL, locator);
 
-		byte[] bytes = getByteArrayMax(enderecoArquivo, enderecoTexturas, maxToJme);
+		byte[] bytes = getByteArray(enderecoArquivo, enderecoTexturas, maxToJme);
 		
 		ByteArrayInputStream in = new ByteArrayInputStream(bytes);
 		
@@ -154,7 +178,7 @@ public class ImportadorModelos {
 		return node;
 	}
 
-	private byte[] getByteArrayMax(String enderecoArquivo, String enderecoTexturas, FormatConverter importer) throws FileNotFoundException,
+	private byte[] getByteArray(String enderecoArquivo, String enderecoTexturas, FormatConverter importer) throws FileNotFoundException,
 			MalformedURLException, IOException {
 		String key = getKey(enderecoArquivo, enderecoTexturas);
 		byte[] bytes = mapaOutputStreams.get(key);
