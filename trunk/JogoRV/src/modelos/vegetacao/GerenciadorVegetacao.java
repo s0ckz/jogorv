@@ -36,7 +36,7 @@ public class GerenciadorVegetacao {
 	private Collection<Node> getVegetacao(String diretorio, String tipo, int totalDisponivel, int quantidade) throws IOException {
 		Collection<Node> nodes = new LinkedList<Node>();
 		for (int i = 0; i < quantidade; i++) {
-			Node planta = ImportadorModelos.getInstance().carregarModelo(
+			Node planta = ImportadorModelos.getInstance().carregarModeloMax(
 					diretorio + getNome(tipo, totalDisponivel));
 			
 	        DisplaySystem display = DisplaySystem.getDisplaySystem();

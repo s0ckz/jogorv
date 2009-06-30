@@ -11,5 +11,6 @@
 	<classpathentry kind="lib" path="lib/lwjgl_util.jar"/>
 	<classpathentry kind="lib" path="lib/lwjgl.jar"/>
 	<classpathentry kind="lib" path="lib/swt.jar"/>
+	<classpathentry kind="lib" path="lib/MD5Importer-jME2.0-v1.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
