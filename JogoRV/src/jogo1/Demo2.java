@@ -46,8 +46,10 @@ public class Demo2 extends SimpleGame {
     private ChaseCamera cameraPerseguidora;
 
     private TerrainPage terreno;
-
+    
     private Random random = new Random();
+    
+    private Collection<Node> monstros;
 
     public static void main(String[] args) {
         try {
@@ -88,6 +90,8 @@ public class Demo2 extends SimpleGame {
         if (!Float.isInfinite(characterMinHeight) && !Float.isNaN(characterMinHeight)) {
             m_character.getLocalTranslation().y = characterMinHeight;
         }
+        
+        atualizarMonstros();
     }
 
     private void configurarPersonagem() {
@@ -188,7 +192,7 @@ public class Demo2 extends SimpleGame {
     
     private void configurarMonstros() {
     	try {
-    		Collection<Node> monstros = GerenciadorMonstros.getInstance().getMonstros(40);
+    		monstros = GerenciadorMonstros.getInstance().getMonstros(40);
     		for (Node monstro : monstros) {
     			monstro.setLocalTranslation(calcularPosicaoAleatoria());
     			monstro.getLocalRotation().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_X);
@@ -198,6 +202,13 @@ public class Demo2 extends SimpleGame {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void atualizarMonstros() {
+		for (Node monstro : monstros) {
+        	monstro.getLocalTranslation().z = monstro.getLocalTranslation().z + 2.5f; 
+        	monstro.getLocalTranslation().y = terreno.getHeight(monstro.getLocalTranslation()) + 20;
+        }
 	}
     
     private void configurarPlantas() {
