@@ -52,8 +52,6 @@ public class Demo2 extends SimpleGame {
     
     private Collection<Node> monstros;
     
-    private Vector3f rot = new Vector3f();
-
     private Quaternion rotQuat1 = new Quaternion().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_X);
 
     private float angle = 0;
@@ -221,7 +219,6 @@ public class Demo2 extends SimpleGame {
 			}
 	
 			for (Node monstro : monstros) {
-		        Vector3f loc = monstro.getLocalTranslation();
 				monstro.getLocalRotation().fromAngleAxis(-FastMath.HALF_PI, new Vector3f(1, 0, 0));
 				monstro.getLocalRotation().multLocal(rotQuat1.fromAngleAxis(-angle, Vector3f.UNIT_Z));
 	        	monstro.getLocalTranslation().y = terreno.getHeight(monstro.getLocalTranslation()) + 20;
