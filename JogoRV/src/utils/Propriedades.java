@@ -18,4 +18,8 @@ public class Propriedades {
 		return getDiretorioVegetacao() + "arvores/";
 	}
 
+	public static String getDiretorioMonstros() {
+		return getDiretorioModelos() + "monstros/";
+	}
+
 }

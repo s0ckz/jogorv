@@ -1,26 +1,45 @@
 package modelos;
 
+import static com.jme.util.resource.ResourceLocatorTool.locateResource;
+
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
+import java.util.Map.Entry;
 
 import com.jme.bounding.BoundingBox;
+import com.jme.image.Texture;
+import com.jme.scene.Controller;
 import com.jme.scene.Node;
 import com.jme.scene.Spatial;
+import com.jme.scene.state.TextureState;
+import com.jme.system.DisplaySystem;
+import com.jme.util.TextureManager;
 import com.jme.util.export.binary.BinaryImporter;
 import com.jme.util.resource.ResourceLocatorTool;
 import com.jme.util.resource.SimpleResourceLocator;
+import com.jmex.model.converters.FormatConverter;
 import com.jmex.model.converters.MaxToJme;
+import com.jmex.model.converters.Md3ToJme;
+import com.model.md5.importer.MD5Importer;
 
 public class ImportadorModelos {
 	
-	private MaxToJme maxtojme = new MaxToJme();
+	private FormatConverter maxToJme = new MaxToJme();
+	
+	private FormatConverter md3ToJme = new Md3ToJme();
+	
+	private MD5Importer importer = MD5Importer.getInstance();
 	
 	private BinaryImporter binaryImporter = new BinaryImporter(); 
 	
@@ -35,16 +54,94 @@ public class ImportadorModelos {
 		return instance;
 	}
 
-	public Node carregarModelo(String enderecoArquivo) throws IOException {
-		return carregarModelo(enderecoArquivo, new File(enderecoArquivo).getParent());
+	public Node carregarModeloMax(String enderecoArquivo) throws IOException {
+		return carregarModeloMax(enderecoArquivo, new File(enderecoArquivo).getParent());
+	}
+
+	public Node carregarModeloMd5(String diretorio, String modelo) throws IOException {
+		return carregarModeloMd5(diretorio + "/" + modelo + ".md5mesh", 
+				diretorio + "/" + modelo + ".md5anim", 
+				diretorio + "/" + modelo + ".jpg");
+	}
+
+	public Node carregarModeloMd5(String enderecoArquivoMesh, String enderecoArquivoAnimacao, String textura) throws IOException {
+	    SimpleResourceLocator locator = new SimpleResourceLocator(new File(enderecoArquivoMesh).getParentFile().toURI());
+	    ResourceLocatorTool.addResourceLocator(ResourceLocatorTool.TYPE_TEXTURE, locator);
+	    ResourceLocatorTool.addResourceLocator(ResourceLocatorTool.TYPE_MODEL, locator);
+	    
+		URL urlMesh = new File(enderecoArquivoMesh).toURI().toURL();
+		URL urlAnim =  new File(enderecoArquivoAnimacao).toURI().toURL();
+		importer.cleanup();
+		importer.load(urlMesh, UUID.randomUUID().toString(), urlAnim, UUID.randomUUID().toString(), Controller.RT_CYCLE);
+		Node node = (Node) importer.getMD5Node();
+		node.getChildren().get(0).setRenderState(criarTextura(getTextura(textura)));
+		return node;
+	}
+
+	public Node carregarModeloMd3(String enderecoArquivo) throws IOException {
+		return carregarModeloMd3(enderecoArquivo, new File(enderecoArquivo).getParent());
+	}
+
+	public Node carregarModeloMd3(String enderecoArquivo, String enderecoTexturas) throws IOException {
+	    SimpleResourceLocator locator = new SimpleResourceLocator(new File(enderecoArquivo).getParentFile().toURI());
+	    ResourceLocatorTool.addResourceLocator(ResourceLocatorTool.TYPE_TEXTURE, locator);
+	    ResourceLocatorTool.addResourceLocator(ResourceLocatorTool.TYPE_MODEL, locator);
+	
+		byte[] bytes = getByteArrayMax(enderecoArquivo, enderecoArquivo, md3ToJme);
+		
+		ByteArrayInputStream in = new ByteArrayInputStream(bytes);
+		
+		Node node = (Node) binaryImporter.load(in);
+		carregarTexturasMd3(node, enderecoArquivo, enderecoTexturas);
+		return node;
 	}
 	
-	private Node carregarModelo(String enderecoArquivo, String enderecoTexturas) throws FileNotFoundException, MalformedURLException, IOException {
+	private void carregarTexturasMd3(Node node, String enderecoArquivo, String enderecoTexturas) throws IOException {
+		Map<String, String> mapaTexturas = getMapaTexturasMd3(substituirExtensao(enderecoArquivo, "skin"), enderecoTexturas);
+		for (Entry<String, String> entry : mapaTexturas.entrySet()) {
+			String nodeName = entry.getKey();
+			String texturePath = entry.getValue();
+			URL tex= new File(texturePath).toURI().toURL();
+			Spatial child = node.getChild(nodeName);
+			if (child != null) {
+				child.setRenderState(criarTextura(tex));
+			}
+		}
+	}
+
+	private TextureState criarTextura(URL tex) {
+		DisplaySystem display = DisplaySystem.getDisplaySystem();
+		TextureState ts = display.getRenderer().createTextureState();
+		ts.setTexture(TextureManager.loadTexture(tex,Texture.MinificationFilter.BilinearNearestMipMap,Texture.MagnificationFilter.Bilinear));
+		ts.setEnabled(true);
+		return ts;
+	}
+
+	private URL getTextura(String textura) {
+		return locateResource(ResourceLocatorTool.TYPE_TEXTURE, textura);
+	}
+
+	private Map<String, String> getMapaTexturasMd3(String arquivoSkins, String enderecoTexturas) throws IOException {
+		enderecoTexturas = enderecoTexturas.replace('\\', '/');
+		Map<String, String> mapaTexturas = new HashMap<String, String>();
+		BufferedReader br = new BufferedReader(new FileReader(arquivoSkins));
+		String line = null;
+		while ((line = br.readLine()) != null) {
+			line = line.trim();
+			String[] tokens = line.split("\\s*,\\s*");
+			if (tokens.length == 2) {
+				mapaTexturas.put(tokens[0], enderecoTexturas + "/" + tokens[1]);
+			}
+		}
+		return mapaTexturas;
+	}
+
+	private Node carregarModeloMax(String enderecoArquivo, String enderecoTexturas) throws FileNotFoundException, MalformedURLException, IOException {
         SimpleResourceLocator locator = new SimpleResourceLocator(new File(enderecoArquivo).getParentFile().toURI());
         ResourceLocatorTool.addResourceLocator(ResourceLocatorTool.TYPE_TEXTURE, locator);
         ResourceLocatorTool.addResourceLocator(ResourceLocatorTool.TYPE_MODEL, locator);
 
-		byte[] bytes = getByteArrayMax(enderecoArquivo, enderecoTexturas);
+		byte[] bytes = getByteArrayMax(enderecoArquivo, enderecoTexturas, maxToJme);
 		
 		ByteArrayInputStream in = new ByteArrayInputStream(bytes);
 		
@@ -57,25 +154,35 @@ public class ImportadorModelos {
 		return node;
 	}
 
-	private byte[] getByteArrayMax(String enderecoArquivo, String enderecoTexturas) throws FileNotFoundException,
+	private byte[] getByteArrayMax(String enderecoArquivo, String enderecoTexturas, FormatConverter importer) throws FileNotFoundException,
 			MalformedURLException, IOException {
 		String key = getKey(enderecoArquivo, enderecoTexturas);
 		byte[] bytes = mapaOutputStreams.get(key);
 		
 		if (bytes == null) {
-			FileInputStream is = new FileInputStream(new File(enderecoArquivo));
-			maxtojme.setProperty("texurl" ,new File(enderecoArquivo).toURI().toURL());
-			maxtojme.setProperty("texdir" ,new File(enderecoArquivo).toURI().toURL());
-			ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
-			maxtojme.convert(is, bytearrayoutputstream);
+			ByteArrayOutputStream bytearrayoutputstream = 
+				carregarModelo(importer, enderecoArquivo);
 			bytes = bytearrayoutputstream.toByteArray();
 			mapaOutputStreams.put(key, bytes);
 		}
 		return bytes;
 	}
 
+	private ByteArrayOutputStream carregarModelo(FormatConverter importer, String enderecoArquivo) throws MalformedURLException, IOException {
+		FileInputStream is = new FileInputStream(new File(enderecoArquivo));
+		importer.setProperty("texurl" ,new File(enderecoArquivo).toURI().toURL());
+		importer.setProperty("texdir" ,new File(enderecoArquivo).toURI().toURL());
+		ByteArrayOutputStream bytearrayoutputstream = new ByteArrayOutputStream();
+		importer.convert(is, bytearrayoutputstream);
+		return bytearrayoutputstream;
+	}
+
 	private String getKey(String enderecoArquivo, String enderecoTexturas) {
 		return enderecoArquivo + "." + enderecoTexturas;
+	}
+
+	private String substituirExtensao(String enderecoArquivo, String extensao) {
+		return enderecoArquivo.substring(0, enderecoArquivo.indexOf('.')) + "." + extensao;
 	}
 
 }
