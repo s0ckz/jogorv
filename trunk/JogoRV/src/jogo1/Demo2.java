@@ -188,9 +188,9 @@ public class Demo2 extends SimpleGame {
     
     private void configurarMonstros() {
     	try {
-    		Collection<Node> monstros = GerenciadorMonstros.getInstance().getMonstros(1);
+    		Collection<Node> monstros = GerenciadorMonstros.getInstance().getMonstros(4);
     		for (Node monstro : monstros) {
-    			monstro.getLocalRotation().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_X);
+//    			monstro.getLocalRotation().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_X);
     			monstro.getLocalTranslation().y = terreno.getHeight(monstro.getLocalTranslation()) + 20;
     			rootNode.attachChild(monstro);
     		}
