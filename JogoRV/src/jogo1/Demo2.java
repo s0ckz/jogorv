@@ -25,6 +25,7 @@ import com.jme.input.joystick.JoystickInput;
 import com.jme.input.thirdperson.ThirdPersonJoystickPlugin;
 import com.jme.light.DirectionalLight;
 import com.jme.math.FastMath;
+import com.jme.math.Quaternion;
 import com.jme.math.Vector3f;
 import com.jme.renderer.ColorRGBA;
 import com.jme.renderer.Renderer;
@@ -50,7 +51,15 @@ public class Demo2 extends SimpleGame {
     private Random random = new Random();
     
     private Collection<Node> monstros;
+    
+    private Vector3f rot = new Vector3f();
 
+    private Quaternion rotQuat1 = new Quaternion().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_X);
+
+    private float angle = 0;
+    
+    private float timeInSeconds = 0.0f;
+    
     public static void main(String[] args) {
         try {
             JoystickInput.setProvider(InputSystem.INPUT_SYSTEM_LWJGL);
@@ -68,8 +77,8 @@ public class Demo2 extends SimpleGame {
         
         configurarPersonagem();
         configurarTerreno();
-        configurarPlantas();
-        configurarArvores();
+//        configurarPlantas();
+//        configurarArvores();
         configurarMonstros();
         configurarCameraPerseguidora();
         configurarEntrada();
@@ -192,7 +201,7 @@ public class Demo2 extends SimpleGame {
     
     private void configurarMonstros() {
     	try {
-    		monstros = GerenciadorMonstros.getInstance().getMonstros(40);
+    		monstros = GerenciadorMonstros.getInstance().getMonstros(15);
     		for (Node monstro : monstros) {
     			monstro.setLocalTranslation(calcularPosicaoAleatoria());
     			monstro.getLocalRotation().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_X);
@@ -205,13 +214,27 @@ public class Demo2 extends SimpleGame {
 	}
 
 	private void atualizarMonstros() {
-		for (Node monstro : monstros) {
-        	monstro.getLocalTranslation().z = monstro.getLocalTranslation().z + 2.5f; 
-        	monstro.getLocalTranslation().y = terreno.getHeight(monstro.getLocalTranslation()) + 20;
-        }
+		if (timer.getTimeInSeconds() - timeInSeconds > 0.04f) {
+			angle += 0.05f;
+			if (angle > FastMath.TWO_PI) {
+				angle = 0;
+			}
+	
+			for (Node monstro : monstros) {
+		        Vector3f loc = monstro.getLocalTranslation();
+				monstro.getLocalRotation().fromAngleAxis(-FastMath.HALF_PI, new Vector3f(1, 0, 0));
+				monstro.getLocalRotation().multLocal(rotQuat1.fromAngleAxis(-angle, Vector3f.UNIT_Z));
+	        	monstro.getLocalTranslation().y = terreno.getHeight(monstro.getLocalTranslation()) + 20;
+				
+//		        monstro.getLocalRotation().getRotationColumn(2, rot);
+//		        rot.normalizeLocal();
+//		        loc.addLocal(rot.multLocal((1000f * timer.getTime())));
+	        }
+			timeInSeconds = timer.getTimeInSeconds();
+		}
 	}
     
-    private void configurarPlantas() {
+	private void configurarPlantas() {
     	try {
     		Collection<Node> plantas = GerenciadorVegetacao.getInstance().getPlantas(120);
     		for (Node planta : plantas) {
