@@ -20,7 +20,7 @@ public class GerenciadorMonstros {
 	
 	//monstro1 = md5, monstro2 = obj, ...
 	private static final Formato[] tiposMonstros = 
-		{ Formato.MD5, Formato.OBJ };
+		{ Formato.MD5 };
 	
 	private Random random = new Random();
 	
