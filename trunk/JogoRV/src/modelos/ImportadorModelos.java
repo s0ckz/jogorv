@@ -81,7 +81,10 @@ public class ImportadorModelos {
 		importer.cleanup();
 		importer.load(urlMesh, UUID.randomUUID().toString(), urlAnim, UUID.randomUUID().toString(), Controller.RT_CYCLE);
 		Node node = (Node) importer.getMD5Node();
-		node.getChildren().get(0).setRenderState(criarTextura(getTextura(textura)));
+		URL tex = getTextura(textura);
+		if (tex != null) {
+			node.getChildren().get(0).setRenderState(criarTextura(tex));
+		}
 		return node;
 	}
 
