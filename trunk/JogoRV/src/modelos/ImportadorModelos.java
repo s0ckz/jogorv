@@ -2,20 +2,17 @@ package modelos;
 
 import static com.jme.util.resource.ResourceLocatorTool.locateResource;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.Map.Entry;
 
 import com.jme.bounding.BoundingBox;
 import com.jme.image.Texture;
@@ -102,22 +99,24 @@ public class ImportadorModelos {
 		ByteArrayInputStream in = new ByteArrayInputStream(bytes);
 		
 		Node node = (Node) binaryImporter.load(in);
-		carregarTexturasMd3(node, enderecoArquivo, enderecoTexturas);
+		URL textura = new File(substituirExtensao(enderecoArquivo, "tga")).toURI().toURL();
+		node.setRenderState(criarTextura(textura));
+//		carregarTexturasMd3(node, enderecoArquivo, enderecoTexturas);
 		return node;
 	}
 	
-	private void carregarTexturasMd3(Node node, String enderecoArquivo, String enderecoTexturas) throws IOException {
-		Map<String, String> mapaTexturas = getMapaTexturasMd3(substituirExtensao(enderecoArquivo, "skin"), enderecoTexturas);
-		for (Entry<String, String> entry : mapaTexturas.entrySet()) {
-			String nodeName = entry.getKey();
-			String texturePath = entry.getValue();
-			URL tex= new File(texturePath).toURI().toURL();
-			Spatial child = node.getChild(nodeName);
-			if (child != null) {
-				child.setRenderState(criarTextura(tex));
-			}
-		}
-	}
+//	private void carregarTexturasMd3(Node node, String enderecoArquivo, String enderecoTexturas) throws IOException {
+//		Map<String, String> mapaTexturas = getMapaTexturasMd3(substituirExtensao(enderecoArquivo, "skin"), enderecoTexturas);
+//		for (Entry<String, String> entry : mapaTexturas.entrySet()) {
+//			String nodeName = entry.getKey();
+//			String texturePath = entry.getValue();
+//			URL tex= new File(texturePath).toURI().toURL();
+//			Spatial child = node.getChild(nodeName);
+//			if (child != null) {
+//				child.setRenderState(criarTextura(tex));
+//			}
+//		}
+//	}
 
 	private TextureState criarTextura(URL tex) {
 		DisplaySystem display = DisplaySystem.getDisplaySystem();
@@ -131,20 +130,20 @@ public class ImportadorModelos {
 		return locateResource(ResourceLocatorTool.TYPE_TEXTURE, textura);
 	}
 
-	private Map<String, String> getMapaTexturasMd3(String arquivoSkins, String enderecoTexturas) throws IOException {
-		enderecoTexturas = enderecoTexturas.replace('\\', '/');
-		Map<String, String> mapaTexturas = new HashMap<String, String>();
-		BufferedReader br = new BufferedReader(new FileReader(arquivoSkins));
-		String line = null;
-		while ((line = br.readLine()) != null) {
-			line = line.trim();
-			String[] tokens = line.split("\\s*,\\s*");
-			if (tokens.length == 2) {
-				mapaTexturas.put(tokens[0], enderecoTexturas + "/" + tokens[1]);
-			}
-		}
-		return mapaTexturas;
-	}
+//	private Map<String, String> getMapaTexturasMd3(String arquivoSkins, String enderecoTexturas) throws IOException {
+//		enderecoTexturas = enderecoTexturas.replace('\\', '/');
+//		Map<String, String> mapaTexturas = new HashMap<String, String>();
+//		BufferedReader br = new BufferedReader(new FileReader(arquivoSkins));
+//		String line = null;
+//		while ((line = br.readLine()) != null) {
+//			line = line.trim();
+//			String[] tokens = line.split("\\s*,\\s*");
+//			if (tokens.length == 2) {
+//				mapaTexturas.put(tokens[0], enderecoTexturas + "/" + tokens[1]);
+//			}
+//		}
+//		return mapaTexturas;
+//	}
 
 	private Node carregarModeloObj(String enderecoArquivo, String enderecoTexturas) throws FileNotFoundException, MalformedURLException, IOException {
 		objToJme.setProperty("mtllib", new File(enderecoTexturas).toURI().toURL());
