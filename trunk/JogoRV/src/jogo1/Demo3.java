@@ -21,12 +21,9 @@ import com.jme.bounding.BoundingBox;
 import com.jme.image.Texture;
 import com.jme.input.ChaseCamera;
 import com.jme.input.InputSystem;
-import com.jme.input.KeyBindingManager;
 import com.jme.input.KeyInput;
 import com.jme.input.KeyInputListener;
 import com.jme.input.ThirdPersonHandler;
-import com.jme.input.action.InputActionEvent;
-import com.jme.input.action.InputActionInterface;
 import com.jme.input.joystick.Joystick;
 import com.jme.input.joystick.JoystickInput;
 import com.jme.input.thirdperson.ThirdPersonJoystickPlugin;
@@ -39,6 +36,7 @@ import com.jme.math.Vector3f;
 import com.jme.renderer.ColorRGBA;
 import com.jme.renderer.Renderer;
 import com.jme.scene.Node;
+import com.jme.scene.Spatial;
 import com.jme.scene.state.FogState;
 import com.jme.scene.state.TextureState;
 import com.jme.util.TextureManager;
@@ -51,6 +49,8 @@ public class Demo3 extends SimpleGame {
             .getLogger(Demo3.class.getName());
 
     private Node nodoPersonagem;
+    
+    private Spatial espada;
     
     private ModeloAnimado personagem;
 
@@ -71,6 +71,8 @@ public class Demo3 extends SimpleGame {
 	private boolean atacando;
     
     private CollisionResults resultadoColisao = criarResultadoColisao();
+    
+    private CollisionResults resultadoColisaoAtaque = criarResultadoColisaoAtaque();
     
     private Node nodoColisao = new Node();
     
@@ -139,6 +141,9 @@ public class Demo3 extends SimpleGame {
 	}
 
 	private void detectarColisoes() {
+		if (atacando) {
+			espada.calculateCollisions(nodoColisao, resultadoColisaoAtaque);
+		}
 		nodoPersonagem.calculateCollisions(nodoColisao, resultadoColisao);
 	}
 
@@ -157,14 +162,26 @@ public class Demo3 extends SimpleGame {
 		};
 	}
 
+    private CollisionResults criarResultadoColisaoAtaque() {
+		return new BoundingCollisionResults() {
+			public void processCollisions() {
+				if (getNumber() > 0 ) {
+					nodoColisao.detachChild(getCollisionData(0).getTargetMesh().getParent());
+					clear();
+				}
+			}
+		};
+	}
+
 	private void configurarColisao() {
 		rootNode.attachChild(nodoColisao);
 	}
 
     private void configurarPersonagem() throws IOException {
-    	personagem = GerenciadorModelosAnimados.getInstance().carregarModeloAnimadoMd3("obj/cruzado.md3");
+    	personagem = GerenciadorModelosAnimados.getInstance().carregarModeloAnimadoMd3("modelos/personagem/cruzado.md3");
     	personagem.setVelocidade(10.0f);
     	nodoPersonagem = personagem.getNode();
+    	espada = nodoPersonagem.getChild(1);
     	nodoPersonagem.setModelBound(new BoundingBox());
     	nodoPersonagem.updateModelBound();
         nodoPersonagem.setName("char node");
