@@ -152,7 +152,7 @@ public class Demo3 extends SimpleGame {
 
     private void configurarPersonagem() throws IOException {
     	personagem = GerenciadorModelosAnimados.getInstance().carregarModeloAnimadoMd3("obj/cruzado.md3");
-    	personagem.setVelocidade(10);
+    	personagem.setVelocidade(10.0f);
     	nodoPersonagem = personagem.getNode();
     	nodoPersonagem.setModelBound(new BoundingBox());
     	nodoPersonagem.updateModelBound();
