@@ -1,5 +1,6 @@
 package jogo1;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,7 +11,6 @@ import java.util.logging.Logger;
 
 import javax.swing.ImageIcon;
 
-import jmetest.terrain.TestTerrain;
 import modelos.animados.GerenciadorModelosAnimados;
 import modelos.animados.ModeloAnimado;
 import modelos.monstros.GerenciadorMonstros;
@@ -190,7 +190,7 @@ public class Demo3 extends SimpleGame {
         
     }
     
-    private void configurarTerreno() {
+    private void configurarTerreno() throws IOException {
         rootNode.setRenderQueueMode(Renderer.QUEUE_OPAQUE);
 
         display.getRenderer().setBackgroundColor(
@@ -217,12 +217,9 @@ public class Demo3 extends SimpleGame {
 
         ProceduralTextureGenerator pt = new ProceduralTextureGenerator(
                 heightMap);
-        pt.addTexture(new ImageIcon(TestTerrain.class.getClassLoader()
-                .getResource("jmetest/data/texture/grassb.png")), -128, 0, 128);
-        pt.addTexture(new ImageIcon(TestTerrain.class.getClassLoader()
-                .getResource("jmetest/data/texture/dirt.jpg")), 0, 128, 255);
-        pt.addTexture(new ImageIcon(TestTerrain.class.getClassLoader()
-                .getResource("jmetest/data/texture/highest.jpg")), 128, 255,
+        pt.addTexture(new ImageIcon(new File("modelos/terreno/grassb.png").toURI().toURL()), -128, 0, 128);
+        pt.addTexture(new ImageIcon(new File("modelos/terreno/dirt.jpg").toURI().toURL()), 0, 128, 255);
+        pt.addTexture(new ImageIcon(new File("modelos/terreno/highest.jpg").toURI().toURL()), 128, 255,
                 384);
 
         pt.createTexture(512);
@@ -233,9 +230,7 @@ public class Demo3 extends SimpleGame {
                 Texture.MinificationFilter.Trilinear, Texture.MagnificationFilter.Bilinear, true);
         ts.setTexture(t1, 0);
 
-        Texture t2 = TextureManager.loadTexture(Demo3.class
-                .getClassLoader()
-                .getResource("jmetest/data/texture/Detail.jpg"),
+        Texture t2 = TextureManager.loadTexture(new File("modelos/terreno/Detail.jpg").toURI().toURL(),
                 Texture.MinificationFilter.Trilinear, Texture.MagnificationFilter.Bilinear);
         ts.setTexture(t2, 1);
         t2.setWrap(Texture.WrapMode.Repeat);
