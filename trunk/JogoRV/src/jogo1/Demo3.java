@@ -21,7 +21,12 @@ import com.jme.bounding.BoundingBox;
 import com.jme.image.Texture;
 import com.jme.input.ChaseCamera;
 import com.jme.input.InputSystem;
+import com.jme.input.KeyBindingManager;
+import com.jme.input.KeyInput;
+import com.jme.input.KeyInputListener;
 import com.jme.input.ThirdPersonHandler;
+import com.jme.input.action.InputActionEvent;
+import com.jme.input.action.InputActionInterface;
 import com.jme.input.joystick.Joystick;
 import com.jme.input.joystick.JoystickInput;
 import com.jme.input.thirdperson.ThirdPersonJoystickPlugin;
@@ -63,11 +68,15 @@ public class Demo3 extends SimpleGame {
     
     private float timeInSeconds = 0.0f;
     
+	private boolean atacando;
+    
     private CollisionResults resultadoColisao = criarResultadoColisao();
     
     private Node nodoColisao = new Node();
     
     private ThirdPersonHandler thirdPersonHandler;
+    
+	private KeyInputListener acaoPersonagem = criarAcaoPersonagem();
     
     public static void main(String[] args) {
         try {
@@ -119,11 +128,13 @@ public class Demo3 extends SimpleGame {
     }
 
 	private void atualizarAnimacao() {
-		if (!thirdPersonHandler.isNowTurning() && !thirdPersonHandler.isStrafeAlignTarget() &&
-				!thirdPersonHandler.isWalkingBackwards() && !thirdPersonHandler.isWalkingForward()) {
-	    	personagem.setAnimacaoAtual("parado");
-		} else {
-	    	personagem.setAnimacaoAtual("andando");
+		if (!atacando) {
+			if (!thirdPersonHandler.isNowTurning() && !thirdPersonHandler.isStrafeAlignTarget() &&
+					!thirdPersonHandler.isWalkingBackwards() && !thirdPersonHandler.isWalkingForward()) {
+		    	personagem.setAnimacaoAtual("parado");
+			} else {
+		    	personagem.setAnimacaoAtual("andando");
+			}
 		}
 	}
 
@@ -332,7 +343,23 @@ public class Demo3 extends SimpleGame {
         handlerProps.put(ThirdPersonHandler.PROP_CAMERAALIGNEDMOVE, "true");
         input = thirdPersonHandler = new ThirdPersonHandler(nodoPersonagem, cam, handlerProps);
         input.setActionSpeed(100f);
+        
+        KeyInput.get().addListener(acaoPersonagem);
     }
+
+	private KeyInputListener criarAcaoPersonagem() {
+		return new KeyInputListener() {
+
+			public void onKey(char character, int keyCode, boolean pressed) {
+				if (keyCode == KeyInput.KEY_SPACE) {
+					atacando = pressed;
+					if (atacando) {
+						personagem.setAnimacaoAtual("atacando");
+					}
+				}
+			}
+		};
+	}
     
     private void configurarJoystick() {
         ArrayList<Joystick> joys = JoystickInput.get().findJoysticksByAxis("X Axis", "Y Axis", "Z Axis", "Z Rotation");
