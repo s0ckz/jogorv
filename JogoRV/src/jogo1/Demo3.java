@@ -320,6 +320,7 @@ public class Demo3 extends SimpleGame {
 	}
 
 	private void atualizarMonstros() {
+		System.out.println(thirdPersonHandler.getFaceAngle());
 		if (timer.getTimeInSeconds() - timeInSeconds > 0.04f) {
 			int i = 0;
     		Node monstro = null;
