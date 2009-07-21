@@ -79,6 +79,8 @@ public class Demo3 extends SimpleGame {
 	private KeyInputListener acaoPersonagem = criarAcaoPersonagem();
 	
 	private List<Float> angulos = new ArrayList<Float>();
+	
+	private Vector3f vetorParaTranslacao = new Vector3f();
     
     public static void main(String[] args) {
         try {
@@ -301,7 +303,9 @@ public class Demo3 extends SimpleGame {
 				angulos.set(i, angle);
 				monstro.getLocalRotation().fromAngleAxis(-angle, new Vector3f(0, 1, 0));
 	        	monstro.getLocalTranslation().y = terreno.getHeight(monstro.getLocalTranslation());
-	        	monstro.getLocalTranslation().x = monstro.getLocalTranslation().x + fator;
+//	        	monstro.getLocalTranslation().x = monstro.getLocalTranslation().x + fator;
+	        	monstro.getLocalRotation().getRotationColumn(2, vetorParaTranslacao);
+	        	monstro.getLocalTranslation().subtractLocal( vetorParaTranslacao.multLocal(1.5f) );
 	        	i++;
 	        }
 			timeInSeconds = timer.getTimeInSeconds();
