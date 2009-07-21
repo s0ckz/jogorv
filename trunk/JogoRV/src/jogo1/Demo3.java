@@ -75,6 +75,8 @@ public class Demo3 extends SimpleGame {
     
     private CollisionResults resultadoColisaoAtaque = criarResultadoColisaoAtaque();
     
+    private CollisionResults resultadoColisaoAtaqueMonstros = criarResultadoColisaoAtaqueMonstros();
+    
     private Node nodoColisao = new Node();
     
     private ThirdPersonHandler thirdPersonHandler;
@@ -89,11 +91,17 @@ public class Demo3 extends SimpleGame {
 	
 	private Vector3f vetorPersonagem = new Vector3f();
 	
-	private Text contadorMortes;
+	private Text contadorMortesMonstros;
 	
-	private int numeroMortes = 0;
+	private Text contadorMortesPersonagem;
+	
+	private int numeroMortesMonstros = 0;
+	
+	private int numeroMortesPersonagem = 0;
 	
 	private boolean alguemMorreu = false;
+
+	private List<Spatial> espadasMonstros = new ArrayList<Spatial>();
     
     public static void main(String[] args) {
         try {
@@ -149,7 +157,8 @@ public class Demo3 extends SimpleGame {
 	private void atualizarContador() {
 		if (alguemMorreu) {
 			alguemMorreu = false;
-			contadorMortes.print(new StringBuffer(getTextoContadorMortes()));
+			contadorMortesMonstros.print(new StringBuffer(getTextoContadorMortesMonstros()));
+			contadorMortesPersonagem.print(new StringBuffer(getTextoContadorMortesPersonagem()));
 		}
 	}
 
@@ -190,7 +199,7 @@ public class Demo3 extends SimpleGame {
 		return new BoundingCollisionResults() {
 			public void processCollisions() {
 				if (getNumber() > 0 ) {
-					numeroMortes++;
+					numeroMortesMonstros++;
 					alguemMorreu = true;
 					getCollisionData(0).getTargetMesh().getParent().setLocalTranslation(calcularPosicaoAleatoria());
 //					nodoColisao.detachChild(getCollisionData(0).getTargetMesh().getParent());
@@ -200,18 +209,44 @@ public class Demo3 extends SimpleGame {
 		};
 	}
 
-	private void configurarContadorMortes() {
-		contadorMortes = new Text("mortes", getTextoContadorMortes());
-		contadorMortes.setCullHint( Spatial.CullHint.Never );
-		contadorMortes.setRenderState( Text.getDefaultFontTextureState() );
-		contadorMortes.setRenderState( Text.getFontBlend() );
-		contadorMortes.setTextColor(ColorRGBA.white);
-		contadorMortes.setLocalTranslation(display.getRenderer().getWidth() - contadorMortes.getWidth() - 15, 10, 0);
-		rootNode.attachChild(contadorMortes);
+    private CollisionResults criarResultadoColisaoAtaqueMonstros() {
+		return new BoundingCollisionResults() {
+			public void processCollisions() {
+				if (getNumber() > 0 ) {
+					numeroMortesPersonagem++;
+					alguemMorreu = true;
+					getCollisionData(0).getTargetMesh().getParent().setLocalTranslation(calcularPosicaoAleatoria());
+					clear();
+				}
+			}
+		};
 	}
 
-	private String getTextoContadorMortes() {
-		return "Numero de mortes: " + numeroMortes;
+	private void configurarContadorMortes() {
+		contadorMortesMonstros = new Text("mortesMonstro", getTextoContadorMortesMonstros());
+		contadorMortesMonstros.setCullHint( Spatial.CullHint.Never );
+		contadorMortesMonstros.setRenderState( Text.getDefaultFontTextureState() );
+		contadorMortesMonstros.setRenderState( Text.getFontBlend() );
+		contadorMortesMonstros.setTextColor(ColorRGBA.white);
+		contadorMortesMonstros.setLocalTranslation(display.getRenderer().getWidth() - contadorMortesMonstros.getWidth() - 15, 10, 0);
+		rootNode.attachChild(contadorMortesMonstros);
+		
+
+		contadorMortesPersonagem = new Text("mortesPersonagem", getTextoContadorMortesPersonagem());
+		contadorMortesPersonagem.setCullHint( Spatial.CullHint.Never );
+		contadorMortesPersonagem.setRenderState( Text.getDefaultFontTextureState() );
+		contadorMortesPersonagem.setRenderState( Text.getFontBlend() );
+		contadorMortesPersonagem.setTextColor(ColorRGBA.white);
+		contadorMortesPersonagem.setLocalTranslation(15, 10, 0);
+		rootNode.attachChild(contadorMortesPersonagem);
+	}
+
+	private String getTextoContadorMortesMonstros() {
+		return "Monstros mortos: " + numeroMortesMonstros;
+	}
+
+	private String getTextoContadorMortesPersonagem() {
+		return "Mortes: " + numeroMortesPersonagem;
 	}
 
 	private void configurarColisao() {
@@ -316,6 +351,7 @@ public class Demo3 extends SimpleGame {
     			monstro.setLocalTranslation(calcularPosicaoAleatoria());
     			monstro.getLocalTranslation().y = terreno.getHeight(monstro.getLocalTranslation());
     			nodoColisao.attachChild(monstro);
+    	    	espadasMonstros.add(monstro.getChild(1));
     		}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -358,6 +394,10 @@ public class Demo3 extends SimpleGame {
 					}
 					angulos.set(i, angle);
 					monstro.getLocalRotation().fromAngleAxis(-angle, Vector3f.UNIT_Y);
+					
+
+					espadasMonstros.get(i).calculateCollisions(personagem.getNode(), resultadoColisaoAtaqueMonstros);
+					
 				}
 				i++;
 	        }
