@@ -114,7 +114,7 @@ public class Demo3 extends SimpleGame {
 			configurarPersonagem();
 			configurarTerreno();
 //			configurarPlantas();
-//			configurarArvores();
+			configurarArvores();
 			configurarMonstros();
 			configurarContadorMortes();
 			configurarCameraPerseguidora();
@@ -192,7 +192,8 @@ public class Demo3 extends SimpleGame {
 				if (getNumber() > 0 ) {
 					numeroMortes++;
 					alguemMorreu = true;
-					nodoColisao.detachChild(getCollisionData(0).getTargetMesh().getParent());
+					getCollisionData(0).getTargetMesh().getParent().setLocalTranslation(calcularPosicaoAleatoria());
+//					nodoColisao.detachChild(getCollisionData(0).getTargetMesh().getParent());
 					clear();
 				}
 			}
@@ -303,7 +304,7 @@ public class Demo3 extends SimpleGame {
     
     private void configurarMonstros() {
     	try {
-    		monstros = GerenciadorMonstros.getInstance().getMonstros(1);
+    		monstros = GerenciadorMonstros.getInstance().getMonstros(10);
     		for (int i = 0; i < monstros.size(); i++){
     			angulos.add(new Float(0.0));
     		}
@@ -312,7 +313,7 @@ public class Demo3 extends SimpleGame {
     			modeloAnimado.setVelocidade(10.0f);
     			modeloAnimado.setAnimacaoAtual("andando");
     			monstro = modeloAnimado.getNode();
-//    			monstro.setLocalTranslation(calcularPosicaoAleatoria());
+    			monstro.setLocalTranslation(calcularPosicaoAleatoria());
     			monstro.getLocalTranslation().y = terreno.getHeight(monstro.getLocalTranslation());
     			nodoColisao.attachChild(monstro);
     		}
@@ -380,7 +381,7 @@ public class Demo3 extends SimpleGame {
     
     private void configurarArvores() {
     	try {
-    		Collection<Node> arvores = GerenciadorVegetacao.getInstance().getArvores(20);
+    		Collection<Node> arvores = GerenciadorVegetacao.getInstance().getArvores(12);
     		for (Node arvore : arvores) {
     			arvore.setLocalTranslation(calcularPosicaoAleatoria());
     			arvore.getLocalRotation().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_X);
