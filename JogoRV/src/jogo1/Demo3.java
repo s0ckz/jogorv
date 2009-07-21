@@ -295,6 +295,7 @@ public class Demo3 extends SimpleGame {
 					angle = 0;
 				}
 				float fator = (float) (random.nextDouble()/10);
+				if (random.nextDouble() > 0.5) fator = fator*(-1);
 				angle = angulos.get(i);
 				angle += fator;
 				if (angle > FastMath.TWO_PI) {
