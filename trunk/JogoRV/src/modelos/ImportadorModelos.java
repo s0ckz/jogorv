@@ -101,6 +101,8 @@ public class ImportadorModelos {
 		Node node = (Node) binaryImporter.load(in);
 		URL textura = new File(substituirExtensao(enderecoArquivo, "tga")).toURI().toURL();
 		node.setRenderState(criarTextura(textura));
+		node.setModelBound(new BoundingBox());
+		node.updateModelBound();
 //		carregarTexturasMd3(node, enderecoArquivo, enderecoTexturas);
 		return node;
 	}
