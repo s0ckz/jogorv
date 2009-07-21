@@ -60,7 +60,7 @@ public class Demo3 extends SimpleGame {
     
     private Random random = new Random();
     
-    private Collection<Node> monstros;
+    private Collection<ModeloAnimado> monstros;
     
     private Quaternion rotQuat1 = new Quaternion().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_X);
 
@@ -264,7 +264,9 @@ public class Demo3 extends SimpleGame {
     private void configurarMonstros() {
     	try {
     		monstros = GerenciadorMonstros.getInstance().getMonstros(15);
-    		for (Node monstro : monstros) {
+    		Node monstro = null;
+    		for (ModeloAnimado modeloAnimado : monstros) {
+    			monstro = modeloAnimado.getNode();
     			monstro.setLocalTranslation(calcularPosicaoAleatoria());
     			monstro.getLocalRotation().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_X);
     			monstro.getLocalTranslation().y = terreno.getHeight(monstro.getLocalTranslation()) + 20;
@@ -281,8 +283,10 @@ public class Demo3 extends SimpleGame {
 			if (angle > FastMath.TWO_PI) {
 				angle = 0;
 			}
-	
-			for (Node monstro : monstros) {
+
+    		Node monstro = null;
+    		for (ModeloAnimado modeloAnimado : monstros) {
+    			monstro = modeloAnimado.getNode();
 				monstro.getLocalRotation().fromAngleAxis(-FastMath.HALF_PI, new Vector3f(1, 0, 0));
 				monstro.getLocalRotation().multLocal(rotQuat1.fromAngleAxis(-angle, Vector3f.UNIT_Z));
 	        	monstro.getLocalTranslation().y = terreno.getHeight(monstro.getLocalTranslation()) + 20;
