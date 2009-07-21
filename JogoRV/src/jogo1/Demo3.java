@@ -46,7 +46,9 @@ import com.jmex.terrain.util.FaultFractalHeightMap;
 import com.jmex.terrain.util.ProceduralTextureGenerator;
 
 public class Demo3 extends SimpleGame {
-    private static final Logger logger = Logger
+    private static final float VELOCIDADE_MOVIMENTO_MONSTRO = 1.5f;
+
+	private static final Logger logger = Logger
             .getLogger(Demo3.class.getName());
 
     private Node nodoPersonagem;
@@ -217,7 +219,7 @@ public class Demo3 extends SimpleGame {
 
     private void configurarPersonagem() throws IOException {
     	personagem = GerenciadorModelosAnimados.getInstance().carregarModeloAnimadoMd3("modelos/personagem/cruzado.md3");
-    	personagem.setVelocidade(10.0f);
+    	personagem.setVelocidade(12.0f);
     	nodoPersonagem = personagem.getNode();
     	espada = nodoPersonagem.getChild(1);
     	nodoPersonagem.setModelBound(new BoundingBox());
@@ -320,6 +322,7 @@ public class Demo3 extends SimpleGame {
 	}
 
 	private void atualizarMonstros() {
+		float height = 0.0f;
 		if (timer.getTimeInSeconds() - timeInSeconds > 0.04f) {
 			int i = 0;
     		Node monstro = null;
@@ -336,10 +339,15 @@ public class Demo3 extends SimpleGame {
 						angle = 0;
 					}
 					angulos.set(i, angle);
-					monstro.getLocalRotation().fromAngleAxis(-angle, new Vector3f(0, 1, 0));
-		        	monstro.getLocalTranslation().y = terreno.getHeight(monstro.getLocalTranslation());
+					monstro.getLocalRotation().fromAngleAxis(-angle, Vector3f.UNIT_Y);
 		        	monstro.getLocalRotation().getRotationColumn(2, vetorParaTranslacao);
-		        	monstro.getLocalTranslation().subtractLocal( vetorParaTranslacao.multLocal(1.5f) );
+		        	monstro.getLocalTranslation().subtractLocal( vetorParaTranslacao.multLocal(VELOCIDADE_MOVIMENTO_MONSTRO) );
+		        	height = terreno.getHeight(monstro.getLocalTranslation());
+		        	if (Double.isNaN(height)) {
+			        	monstro.getLocalTranslation().addLocal( vetorParaTranslacao.multLocal(VELOCIDADE_MOVIMENTO_MONSTRO) );
+						angulos.set(i, -angle);
+		        	} else
+		        		monstro.getLocalTranslation().y = height;
 				} else {
 					modeloAnimado.setAnimacaoAtual("atacando");
 					angle = angulos.get(i);
@@ -348,7 +356,7 @@ public class Demo3 extends SimpleGame {
 						angle = 0;
 					}
 					angulos.set(i, angle);
-					monstro.getLocalRotation().fromAngleAxis(-angle, new Vector3f(0, 1, 0));
+					monstro.getLocalRotation().fromAngleAxis(-angle, Vector3f.UNIT_Y);
 				}
 				i++;
 	        }
@@ -419,7 +427,7 @@ public class Demo3 extends SimpleGame {
         handlerProps.put(ThirdPersonHandler.PROP_LOCKBACKWARDS, "false");
         handlerProps.put(ThirdPersonHandler.PROP_CAMERAALIGNEDMOVE, "true");
         input = thirdPersonHandler = new ThirdPersonHandler(nodoPersonagem, cam, handlerProps);
-        input.setActionSpeed(100f);
+        input.setActionSpeed(120f);
         
         KeyInput.get().addListener(acaoPersonagem);
     }
