@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -79,6 +80,8 @@ public class Demo3 extends SimpleGame {
     private ThirdPersonHandler thirdPersonHandler;
     
 	private KeyInputListener acaoPersonagem = criarAcaoPersonagem();
+	
+	private List<Float> angulos = new ArrayList<Float>();
     
     public static void main(String[] args) {
         try {
@@ -99,7 +102,7 @@ public class Demo3 extends SimpleGame {
 			configurarPersonagem();
 			configurarTerreno();
 //			configurarPlantas();
-			configurarArvores();
+//			configurarArvores();
 			configurarMonstros();
 			configurarCameraPerseguidora();
 			configurarEntrada();
@@ -263,13 +266,17 @@ public class Demo3 extends SimpleGame {
     
     private void configurarMonstros() {
     	try {
-    		monstros = GerenciadorMonstros.getInstance().getMonstros(15);
+    		monstros = GerenciadorMonstros.getInstance().getMonstros(3);
+    		for (int i = 0; i < monstros.size(); i++){
+    			angulos.add(new Float(0.0));
+    		}
     		Node monstro = null;
     		for (ModeloAnimado modeloAnimado : monstros) {
+    			modeloAnimado.setVelocidade(10.0f);
+    			modeloAnimado.setAnimacaoAtual("andando");
     			monstro = modeloAnimado.getNode();
     			monstro.setLocalTranslation(calcularPosicaoAleatoria());
-    			monstro.getLocalRotation().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_X);
-    			monstro.getLocalTranslation().y = terreno.getHeight(monstro.getLocalTranslation()) + 20;
+    			monstro.getLocalTranslation().y = terreno.getHeight(monstro.getLocalTranslation());
     			nodoColisao.attachChild(monstro);
     		}
 		} catch (IOException e) {
@@ -279,17 +286,25 @@ public class Demo3 extends SimpleGame {
 
 	private void atualizarMonstros() {
 		if (timer.getTimeInSeconds() - timeInSeconds > 0.04f) {
-			angle += 0.05f;
-			if (angle > FastMath.TWO_PI) {
-				angle = 0;
-			}
-
+			int i = 0;
     		Node monstro = null;
     		for (ModeloAnimado modeloAnimado : monstros) {
     			monstro = modeloAnimado.getNode();
-				monstro.getLocalRotation().fromAngleAxis(-FastMath.HALF_PI, new Vector3f(1, 0, 0));
-				monstro.getLocalRotation().multLocal(rotQuat1.fromAngleAxis(-angle, Vector3f.UNIT_Z));
-	        	monstro.getLocalTranslation().y = terreno.getHeight(monstro.getLocalTranslation()) + 20;
+				angle += 0.05f;
+				if (angle > FastMath.TWO_PI) {
+					angle = 0;
+				}
+				float fator = (float) (random.nextDouble()/10);
+				angle = angulos.get(i);
+				angle += fator;
+				if (angle > FastMath.TWO_PI) {
+					angle = 0;
+				}
+				angulos.set(i, angle);
+				monstro.getLocalRotation().fromAngleAxis(-angle, new Vector3f(0, 1, 0));
+	        	monstro.getLocalTranslation().y = terreno.getHeight(monstro.getLocalTranslation());
+	        	monstro.getLocalTranslation().x = monstro.getLocalTranslation().x + fator;
+	        	i++;
 	        }
 			timeInSeconds = timer.getTimeInSeconds();
 		}
