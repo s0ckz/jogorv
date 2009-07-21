@@ -37,6 +37,7 @@ import com.jme.renderer.ColorRGBA;
 import com.jme.renderer.Renderer;
 import com.jme.scene.Node;
 import com.jme.scene.Spatial;
+import com.jme.scene.Text;
 import com.jme.scene.state.FogState;
 import com.jme.scene.state.TextureState;
 import com.jme.util.TextureManager;
@@ -81,6 +82,16 @@ public class Demo3 extends SimpleGame {
 	private List<Float> angulos = new ArrayList<Float>();
 	
 	private Vector3f vetorParaTranslacao = new Vector3f();
+	
+	private Vector3f vetorMonstro = new Vector3f();
+	
+	private Vector3f vetorPersonagem = new Vector3f();
+	
+	private Text contadorMortes;
+	
+	private int numeroMortes = 0;
+	
+	private boolean alguemMorreu = false;
     
     public static void main(String[] args) {
         try {
@@ -103,6 +114,7 @@ public class Demo3 extends SimpleGame {
 //			configurarPlantas();
 //			configurarArvores();
 			configurarMonstros();
+			configurarContadorMortes();
 			configurarCameraPerseguidora();
 			configurarEntrada();
 			configurarJoystick();
@@ -129,7 +141,15 @@ public class Demo3 extends SimpleGame {
         atualizarMonstros();
         atualizarAnimacao();
         detectarColisoes();
+        atualizarContador();
     }
+
+	private void atualizarContador() {
+		if (alguemMorreu) {
+			alguemMorreu = false;
+			contadorMortes.print(new StringBuffer(getTextoContadorMortes()));
+		}
+	}
 
 	private void atualizarAnimacao() {
 		if (!atacando) {
@@ -168,11 +188,27 @@ public class Demo3 extends SimpleGame {
 		return new BoundingCollisionResults() {
 			public void processCollisions() {
 				if (getNumber() > 0 ) {
+					numeroMortes++;
+					alguemMorreu = true;
 					nodoColisao.detachChild(getCollisionData(0).getTargetMesh().getParent());
 					clear();
 				}
 			}
 		};
+	}
+
+	private void configurarContadorMortes() {
+		contadorMortes = new Text("mortes", getTextoContadorMortes());
+		contadorMortes.setCullHint( Spatial.CullHint.Never );
+		contadorMortes.setRenderState( Text.getDefaultFontTextureState() );
+		contadorMortes.setRenderState( Text.getFontBlend() );
+		contadorMortes.setTextColor(ColorRGBA.white);
+		contadorMortes.setLocalTranslation(display.getRenderer().getWidth() - contadorMortes.getWidth() - 15, 10, 0);
+		rootNode.attachChild(contadorMortes);
+	}
+
+	private String getTextoContadorMortes() {
+		return "Numero de mortes: " + numeroMortes;
 	}
 
 	private void configurarColisao() {
@@ -265,7 +301,7 @@ public class Demo3 extends SimpleGame {
     
     private void configurarMonstros() {
     	try {
-    		monstros = GerenciadorMonstros.getInstance().getMonstros(10);
+    		monstros = GerenciadorMonstros.getInstance().getMonstros(1);
     		for (int i = 0; i < monstros.size(); i++){
     			angulos.add(new Float(0.0));
     		}
@@ -274,7 +310,7 @@ public class Demo3 extends SimpleGame {
     			modeloAnimado.setVelocidade(10.0f);
     			modeloAnimado.setAnimacaoAtual("andando");
     			monstro = modeloAnimado.getNode();
-    			monstro.setLocalTranslation(calcularPosicaoAleatoria());
+//    			monstro.setLocalTranslation(calcularPosicaoAleatoria());
     			monstro.getLocalTranslation().y = terreno.getHeight(monstro.getLocalTranslation());
     			nodoColisao.attachChild(monstro);
     		}
@@ -289,8 +325,9 @@ public class Demo3 extends SimpleGame {
     		Node monstro = null;
     		for (ModeloAnimado modeloAnimado : monstros) {
     			monstro = modeloAnimado.getNode();
-			//	if (monstro.getLocalTranslation().distance(personagem.getNode().getLocalTranslation()) > 10){
-				if (false){
+				if (monstro.getLocalTranslation().distance(personagem.getNode().getLocalTranslation()) > 80){
+					modeloAnimado.setAnimacaoAtual("andando");
+					
     				float fator = (float) (random.nextDouble()/3);
 					if (random.nextDouble() > 0.5) fator = fator*(-1);
 					angle = angulos.get(i);
@@ -301,16 +338,10 @@ public class Demo3 extends SimpleGame {
 					angulos.set(i, angle);
 					monstro.getLocalRotation().fromAngleAxis(-angle, new Vector3f(0, 1, 0));
 		        	monstro.getLocalTranslation().y = terreno.getHeight(monstro.getLocalTranslation());
-//		        	monstro.getLocalTranslation().x = monstro.getLocalTranslation().x + fator;
 		        	monstro.getLocalRotation().getRotationColumn(2, vetorParaTranslacao);
 		        	monstro.getLocalTranslation().subtractLocal( vetorParaTranslacao.multLocal(1.5f) );
-
-				}else{
-					float angBet = monstro.getLocalTranslation().angleBetween(personagem.getNode().getLocalTranslation());
-					if (i==1) System.out.println(angBet);
-					monstro.getLocalRotation().fromAngleAxis(-angBet, new Vector3f(0, 1, 0));
-				//	monstro.getLocalRotation().getRotationColumn(2, vetorParaTranslacao);
-		        //	monstro.getLocalTranslation().subtractLocal( vetorParaTranslacao.multLocal(1.5f));
+				} else {
+					modeloAnimado.setAnimacaoAtual("atacando");
 				}
 				i++;
 	        }
