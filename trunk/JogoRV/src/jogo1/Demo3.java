@@ -293,7 +293,7 @@ public class Demo3 extends SimpleGame {
 				if (angle > FastMath.TWO_PI) {
 					angle = 0;
 				}
-				float fator = (float) (random.nextDouble()/10);
+				float fator = (float) (random.nextDouble()/3);
 				if (random.nextDouble() > 0.5) fator = fator*(-1);
 				angle = angulos.get(i);
 				angle += fator;
