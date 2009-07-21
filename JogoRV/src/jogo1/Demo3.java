@@ -32,7 +32,6 @@ import com.jme.intersection.BoundingCollisionResults;
 import com.jme.intersection.CollisionResults;
 import com.jme.light.DirectionalLight;
 import com.jme.math.FastMath;
-import com.jme.math.Quaternion;
 import com.jme.math.Vector3f;
 import com.jme.renderer.ColorRGBA;
 import com.jme.renderer.Renderer;
@@ -63,8 +62,6 @@ public class Demo3 extends SimpleGame {
     
     private Collection<ModeloAnimado> monstros;
     
-    private Quaternion rotQuat1 = new Quaternion().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_X);
-
     private float angle = 0;
     
     private float timeInSeconds = 0.0f;
@@ -266,7 +263,7 @@ public class Demo3 extends SimpleGame {
     
     private void configurarMonstros() {
     	try {
-    		monstros = GerenciadorMonstros.getInstance().getMonstros(3);
+    		monstros = GerenciadorMonstros.getInstance().getMonstros(10);
     		for (int i = 0; i < monstros.size(); i++){
     			angulos.add(new Float(0.0));
     		}
@@ -369,7 +366,7 @@ public class Demo3 extends SimpleGame {
 
     private void configurarEntrada() {
         HashMap<String, Object> handlerProps = new HashMap<String, Object>();
-        handlerProps.put(ThirdPersonHandler.PROP_DOGRADUAL, "true");
+        handlerProps.put(ThirdPersonHandler.PROP_DOGRADUAL, "false");
         handlerProps.put(ThirdPersonHandler.PROP_TURNSPEED, ""+(1.0f * FastMath.PI));
         handlerProps.put(ThirdPersonHandler.PROP_LOCKBACKWARDS, "false");
         handlerProps.put(ThirdPersonHandler.PROP_CAMERAALIGNEDMOVE, "true");

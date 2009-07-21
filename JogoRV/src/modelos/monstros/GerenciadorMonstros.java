@@ -29,7 +29,7 @@ public class GerenciadorMonstros {
 	private Collection<ModeloAnimado> getMonstro(String diretorio, String tipo, int quantidade) throws IOException {
 		Collection<ModeloAnimado> nodes = new LinkedList<ModeloAnimado>();
 		for (int i = 0; i < quantidade; i++) {
-			ModeloAnimado monstro = carregarMonstro(diretorio, tipo, 1);
+			ModeloAnimado monstro = carregarMonstro(diretorio, tipo, 2);
 			nodes.add(monstro);
 		}
 		return nodes;
