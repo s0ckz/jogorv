@@ -289,24 +289,30 @@ public class Demo3 extends SimpleGame {
     		Node monstro = null;
     		for (ModeloAnimado modeloAnimado : monstros) {
     			monstro = modeloAnimado.getNode();
-				angle += 0.05f;
-				if (angle > FastMath.TWO_PI) {
-					angle = 0;
+			//	if (monstro.getLocalTranslation().distance(personagem.getNode().getLocalTranslation()) > 10){
+				if (false){
+    				float fator = (float) (random.nextDouble()/3);
+					if (random.nextDouble() > 0.5) fator = fator*(-1);
+					angle = angulos.get(i);
+					angle += fator;
+					if (angle > FastMath.TWO_PI) {
+						angle = 0;
+					}
+					angulos.set(i, angle);
+					monstro.getLocalRotation().fromAngleAxis(-angle, new Vector3f(0, 1, 0));
+		        	monstro.getLocalTranslation().y = terreno.getHeight(monstro.getLocalTranslation());
+//		        	monstro.getLocalTranslation().x = monstro.getLocalTranslation().x + fator;
+		        	monstro.getLocalRotation().getRotationColumn(2, vetorParaTranslacao);
+		        	monstro.getLocalTranslation().subtractLocal( vetorParaTranslacao.multLocal(1.5f) );
+
+				}else{
+					float angBet = monstro.getLocalTranslation().angleBetween(personagem.getNode().getLocalTranslation());
+					if (i==1) System.out.println(angBet);
+					monstro.getLocalRotation().fromAngleAxis(-angBet, new Vector3f(0, 1, 0));
+				//	monstro.getLocalRotation().getRotationColumn(2, vetorParaTranslacao);
+		        //	monstro.getLocalTranslation().subtractLocal( vetorParaTranslacao.multLocal(1.5f));
 				}
-				float fator = (float) (random.nextDouble()/3);
-				if (random.nextDouble() > 0.5) fator = fator*(-1);
-				angle = angulos.get(i);
-				angle += fator;
-				if (angle > FastMath.TWO_PI) {
-					angle = 0;
-				}
-				angulos.set(i, angle);
-				monstro.getLocalRotation().fromAngleAxis(-angle, new Vector3f(0, 1, 0));
-	        	monstro.getLocalTranslation().y = terreno.getHeight(monstro.getLocalTranslation());
-//	        	monstro.getLocalTranslation().x = monstro.getLocalTranslation().x + fator;
-	        	monstro.getLocalRotation().getRotationColumn(2, vetorParaTranslacao);
-	        	monstro.getLocalTranslation().subtractLocal( vetorParaTranslacao.multLocal(1.5f) );
-	        	i++;
+				i++;
 	        }
 			timeInSeconds = timer.getTimeInSeconds();
 		}
