@@ -343,6 +343,13 @@ public class Demo3 extends SimpleGame {
 		        	monstro.getLocalTranslation().subtractLocal( vetorParaTranslacao.multLocal(1.5f) );
 				} else {
 					modeloAnimado.setAnimacaoAtual("atacando");
+					angle = angulos.get(i);
+					angle += 0.1f;
+					if (angle > FastMath.TWO_PI) {
+						angle = 0;
+					}
+					angulos.set(i, angle);
+					monstro.getLocalRotation().fromAngleAxis(-angle, new Vector3f(0, 1, 0));
 				}
 				i++;
 	        }
